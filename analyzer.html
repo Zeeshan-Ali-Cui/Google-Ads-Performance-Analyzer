@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 20px;
+    }
+
+    #analyzer {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    input {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    /* Quality Comment Classes */
+    .excellent {
+      color: green;
+    }
+
+    .good {
+      color: blue;
+    }
+
+    .poor {
+      color: red;
+    }
+  </style>
+  <script>
+    function analyzePerformance() {
+      // User-entered ad details
+      var ad = document.getElementById('ad').value;
+      var callClicks = parseInt(document.getElementById('callClicks').value) || 0;
+      var impressions = parseInt(document.getElementById('impressions').value) || 0;
+      var clicks = parseInt(document.getElementById('clicks').value) || 0;
+      var cost = parseFloat(document.getElementById('cost').value) || 0;
+
+      // Optional user-entered details
+      var googleAdsCall = parseInt(document.getElementById('googleAdsCall').value) || 0;
+      var clickOnDirection = parseInt(document.getElementById('clickOnDirection').value) || 0;
+      var landingPageCalls = parseInt(document.getElementById('landingPageCalls').value) || 0;
+      var leads = parseInt(document.getElementById('leads').value) || 0;
+      var conversions = parseInt(document.getElementById('conversions').value) || 0;
+
+      // Metrics calculation
+      var ctr = (clicks / impressions) * 100 || 0;
+      var callClickRate = (callClicks / clicks) * 100 || 0;
+      var costPerClick = cost / clicks || 0;
+
+      // Additional metrics for quality
+      var cpcQuality = calculateCPCQuality(costPerClick);
+      var roasQuality = calculateROASQuality(); // Assuming you have a function to calculate ROAS
+      var conversionQuality = calculateConversionQuality(conversions, clicks);
+
+      var overallQuality = calculateOverallQuality(ctr, cpcQuality, roasQuality, conversionQuality);
+
+      // Display the result
+      var resultElement = document.getElementById('result');
+      resultElement.innerHTML = '<h3>Ad Performance Metrics</h3>' +
+        '<table>' +
+        '<tr><th>Metric</th><th>Value</th><th>Quality</th></tr>' +
+        '<tr><td>Impressions</td><td>' + impressions + '</td><td></td></tr>' +
+        '<tr><td>Clicks</td><td>' + clicks + '</td><td class="' + getQualityClass('Clicks', clicks) + '">' + getQualityComment('Clicks', clicks) + '</td></tr>' +
+        '<tr><td>CTR</td><td>' + ctr.toFixed(2) + '%</td><td class="' + getQualityClass('CTR', ctr) + '">' + getQualityComment('CTR', ctr) + '</td></tr>' +
+        '<tr><td>Call Clicks</td><td>' + callClicks + '</td><td class="' + getQualityClass('Call Clicks', callClicks) + '">' + getQualityComment('Call Clicks', callClicks) + '</td></tr>' +
+        '<tr><td>Call Click Rate</td><td>' + callClickRate.toFixed(2) + '%</td><td class="' + getQualityClass('Call Click Rate', callClickRate) + '">' + getQualityComment('Call Click Rate', callClickRate) + '</td></tr>' +
+        '<tr><td>Cost per Click</td><td>$' + costPerClick.toFixed(2) + '</td><td class="' + getQualityClass('Cost per Click', costPerClick) + '">' + getQualityComment('Cost per Click', costPerClick) + '</td></tr>' +
+        '<tr><td>Google Ads Call</td><td>' + googleAdsCall + '</td><td></td></tr>' +
+        '<tr><td>Click on Direction</td><td>' + clickOnDirection + '</td><td></td></tr>' +
+        '<tr><td>Landing Page Calls</td><td>' + landingPageCalls + '</td><td></td></tr>' +
+        '<tr><td>Leads</td><td>' + leads + '</td><td></td></tr>' +
+        '<tr><td>Conversions</td><td>' + conversions + '</td><td></td></tr>' +
+        '<tr><td>Conversion Quality</td><td>' + conversionQuality + '</td><td class="' + getQualityClass('Conversion Quality', conversionQuality) + '">' + getQualityComment('Conversion Quality', conversionQuality) + '</td></tr>' +
+        '<tr><td>Overall Quality</td><td>' + overallQuality + '</td><td class="' + getQualityClass('Overall Quality', overallQuality) + '">' + getQualityComment('Overall Quality', overallQuality) + '</td></tr>' +
+        '</table>';
+    }
+
+    // Function to calculate Conversion Quality
+    function calculateConversionQuality(conversions, clicks) {
+      var conversionQuality = conversions / clicks;
+      conversionQuality = conversionQuality * 100;
+      return conversionQuality.toFixed(2);
+    }
+
+    // Function to calculate CPC Quality
+    function calculateCPCQuality(costPerClick) {
+      return costPerClick < 1 ? 'Good' : 'Poor';
+    }
+
+    // Function to calculate ROAS Quality (Placeholder)
+    function calculateROASQuality() {
+      // Implement your logic for ROAS Quality calculation here
+      // This is a placeholder, replace it with your logic
+      return 'ROAS Quality';
+    }
+
+    // Function to calculate Overall Quality
+    function calculateOverallQuality(ctr, cpcQuality, roasQuality, conversionQuality) {
+      // Placeholder logic for Overall Quality, replace it with your criteria
+      return ctr > 5 && cpcQuality === 'Good' && roasQuality === 'Good' && conversionQuality > 10 ? 'Good' : 'Poor';
+    }
+
+    // Function to get quality class based on a metric and its value
+    function getQualityClass(metric, value) {
+      // Define your criteria for quality classes here
+      // Modify or add conditions based on your specific goals
+
+      if (metric === 'CTR') {
+        if (value > 10) {
+          return 'excellent';
+        } else if (value >= 5 && value <= 10) {
+          return 'good';
+        } else {
+          return 'poor';
+        }
+      }
+
+      if (metric === 'Call Click Rate') {
+        if (value > 20) {
+          return 'excellent';
+        } else if (value >= 10 && value <= 20) {
+          return 'good';
+        } else {
+          return 'poor';
+        }
+      }
+
+      if (metric === 'Cost per Click') {
+        if (value < 1) {
+          return 'excellent';
+        } else if (value >= 1 && value <= 2) {
+          return 'good';
+        } else {
+          return 'poor';
+        }
+      }
+
+      // Add more conditions for other metrics as needed
+
+      return '';
+    }
+
+    // Function to get quality comment based on a metric and its value
+    function getQualityComment(metric, value) {
+      // Define your criteria for quality comments here
+      // Modify or add conditions based on your specific goals
+
+      if (metric === 'Clicks' && value > 100) {
+        return 'Excellent';
+      }
+
+      // Add more conditions for other metrics as needed
+
+      return '';
+    }
+  </script>
+</head>
+<body>
+  <div id="analyzer">
+    <h2>Ad Performance Analyzer</h2>
+    <label for="ad">Enter Ad Name:</label>
+    <input type="text" id="ad" placeholder="Ad Name">
+
+    <label for="callClicks">Call Clicks:</label>
+    <input type="number" id="callClicks" placeholder="Enter Call Clicks">
+
+    <label for="impressions">Impressions:</label>
+    <input type="number" id="impressions" placeholder="Enter Impressions">
+
+    <label for="clicks">Clicks:</label>
+    <input type="number" id="clicks" placeholder="Enter Clicks">
+
+    <label for="cost">Cost ($):</label>
+    <input type="number" id="cost" placeholder="Enter Cost">
+
+    <label for="googleAdsCall">Google Ads Call:</label>
+    <input type="number" id="googleAdsCall" placeholder="Enter Google Ads Call">
+
+    <label for="clickOnDirection">Click on Direction:</label>
+    <input type="number" id="clickOnDirection" placeholder="Enter Click on Direction">
+
+    <label for="landingPageCalls">Landing Page Calls:</label>
+    <input type="number" id="landingPageCalls" placeholder="Enter Landing Page Calls">
+
+    <label for="leads">Leads:</label>
+    <input type="number" id="leads" placeholder="Enter Leads">
+
+    <label for="conversions">Conversions:</label>
+    <input type="number" id="conversions" placeholder="Enter Conversions">
+
+    <button type="button" onclick="analyzePerformance()">Analyze Performance</button>
+    <div id="result"></div>
+  </div>
+     <div id="blog-post">
+    <h1>Boost Your Ad Campaigns with the Ad Performance Analyzer</h1>
+
+    <h2>Understanding Ad Performance Metrics</h2>
+
+    <h3>What is CPC?</h3>
+    <p>CPC, or Cost Per Click, is a vital metric in online advertising.Cost pay by user on each click. Monitoring CPC is crucial for budget management and optimizing campaign performance.</p>
+
+    <h2>Introducing the Ad Performance Analyzer</h2>
+
+    <p>Our Ad Performance Analyzer goes beyond CPC, providing a holistic view of your ad's performance. Here's what makes it a must-have for advertisers:</p>
+
+    <ul>
+      <li><strong>Comprehensive Metrics:</strong> Gain insights into key metrics such as Impressions, Clicks, CTR (Click-Through Rate), Call Clicks, and more. Our tool consolidates this data for a clear overview.</li>
+      <li><strong>Quality Comments:</strong> Receive instant quality comments on metrics like Clicks, CTR, Call Clicks, and Cost per Click. These comments help you understand the performance at a glance.</li>
+      <li><strong>Optional Metrics for Advanced Analysis:</strong> Customize your analysis by adding optional metrics like Google Ads Call, Click on Direction, Landing Page Calls, Leads, and Conversions. The tool adapts calculations based on user input.</li>
+      <li><strong>Enhanced Quality Checks:</strong> Our tool doesn't stop at basic metrics. It assesses the quality of your ad using advanced criteria, including CTR, CPC Quality, ROAS Quality, Conversion Quality, and Overall Quality.</li>
+      <li><strong>User-Friendly Interface:</strong> The clean and intuitive interface ensures that both beginners and seasoned advertisers can navigate the tool effortlessly.</li>
+    </ul>
+
+    <h2>How to Use the Ad Performance Analyzer</h2>
+
+    <ol>
+      <li><strong>Enter Ad Details:</strong> Input basic ad details such as name, call clicks, impressions, clicks, and cost.</li>
+      <li><strong>Optional Metrics:</strong> Add optional metrics if desired, or leave them blank for default calculations.</li>
+      <li><strong>Click "Analyze Performance":</strong> Watch as the tool processes the data and generates a detailed report on your ad's performance.</li>
+      <li><strong>Receive Quality Comments:</strong> Instantly understand the quality of your ad through color-coded quality comments.</li>
+    </ol>
+
+    <h2>Conclusion</h2>
+
+    <p>Elevate your advertising game with the Ad Performance Analyzer. Whether you're a business owner managing your first campaign or a seasoned marketer juggling multiple ad sets, our tool provides the insights you need for data-driven decision-making. Stop guessing and start optimizing with the Ad Performance Analyzer today!</p>
+
+    <p>Try the Ad Performance Analyzer Now. and unlock the potential of your ad campaigns. Your success in the digital advertising landscape starts with informed decisions.</p>
+  </div>
+</body>
+</html>
